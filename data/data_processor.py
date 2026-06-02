@@ -2,12 +2,12 @@
 TSP Dataset Processing Module
 
 Features:
-- Kaggle TSP dataset reading, parsing, and cleaning
-- Outlier detection and filtering
+- TSP CSV dataset reading, parsing, and cleaning
+- Coordinate validation and filtering
 - Coordinate normalization (zero-mean, unit variance)
 - Euclidean distance matrix computation
 - Instance filtering (N <= 25)
-- Dataset splitting (300 train, 100 validation, 100 test)
+- Configurable train, validation, and test splitting
 
 References:
 - Euclidean distance calculation based on numpy.linalg.norm
@@ -70,7 +70,7 @@ class TSPInstance:
 
 
 class DataValidator:
-    """Data Validator: Outlier Detection and Filtering
+    """Data Validator: Coordinate Validation and Filtering
     
     Validates TSP instances for data quality and consistency.
     """
@@ -151,7 +151,7 @@ class DataProcessor:
 
     def load_from_csv(self) -> List[TSPInstance]:
         """
-        Load TSP dataset from Kaggle format CSV.
+        Load TSP dataset from the repository CSV format.
         
         CSV format: TSP_Instance, Num_Cities, City_1_X, City_1_Y, ...
         
@@ -207,7 +207,7 @@ class DataProcessor:
     def preprocess(self, max_cities: int = 25) -> List[TSPInstance]:
         """
         Preprocess dataset:
-        1. Outlier detection and filtering
+        1. Coordinate validation and filtering
         2. Coordinate normalization
         3. Filter instances with N <= max_cities
         
@@ -233,11 +233,8 @@ class DataProcessor:
         """
         Split dataset into train/validation/test sets.
         
-        Test set composition:
-        - 25 instances with N=10
-        - 25 instances with N=15
-        - 25 instances with N=20
-        - 25 instances with N=25
+        Test instances are sampled across common city counts when available,
+        then filled with remaining instances until the requested size is met.
         
         Args:
             train_size: Number of training instances

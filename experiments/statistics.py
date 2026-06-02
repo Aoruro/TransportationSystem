@@ -48,7 +48,7 @@ class StatisticalAnalyzer:
     METRICS = ['nodes_expanded', 'time_seconds', 'cost', 'relative_error']
     COLUMNS = [
         'algorithm', 'instance', 'n_cities', 'cost', 'nodes_expanded',
-        'time_seconds', 'optimality_maintained', 'relative_error'
+        'time_seconds', 'success', 'optimality_maintained', 'relative_error'
     ]
 
     def __init__(self, results: List):
@@ -72,6 +72,7 @@ class StatisticalAnalyzer:
                 'cost': r.cost,
                 'nodes_expanded': r.nodes_expanded,
                 'time_seconds': r.time_seconds,
+                'success': r.success,
                 'optimality_maintained': r.optimality_maintained,
                 'relative_error': r.relative_error
             })
@@ -182,7 +183,8 @@ class StatisticalAnalyzer:
                 'mean_time': algo_df['time_seconds'].mean(),
                 'std_time': algo_df['time_seconds'].std(),
                 'mean_cost': algo_df['cost'].mean(),
-                'success_rate': algo_df['optimality_maintained'].mean(),
+                'success_rate': algo_df['success'].mean(),
+                'optimality_rate': algo_df['optimality_maintained'].mean(),
                 'min_nodes': algo_df['nodes_expanded'].min(),
                 'max_nodes': algo_df['nodes_expanded'].max()
             }
@@ -341,6 +343,11 @@ def load_and_analyze(results_file: str = "experiment_results.json",
         data = json.load(f)
 
     from .runner import ExperimentResult
+    for item in data:
+        for key in ('cost', 'optimal_cost', 'time_seconds', 'relative_error'):
+            if item[key] is None:
+                item[key] = float('inf')
+        item.setdefault('success', bool(item.get('path')))
     results = [ExperimentResult(**item) for item in data]
 
     analyzer = StatisticalAnalyzer(results)

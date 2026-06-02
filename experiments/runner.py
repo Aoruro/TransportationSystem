@@ -41,6 +41,7 @@ class ExperimentResult:
     time_seconds: float
     optimality_maintained: bool
     relative_error: float
+    success: bool = True
 
 
 class ExperimentRunner:
@@ -203,7 +204,8 @@ class ExperimentRunner:
             nodes_expanded=result.get('nodes_expanded', 0),
             time_seconds=result.get('time', elapsed),
             optimality_maintained=optimality_maintained,
-            relative_error=relative_error
+            relative_error=relative_error,
+            success=result['success']
         )
 
     def run_batch(self, algorithms: List[str] = None,
@@ -253,6 +255,7 @@ class ExperimentRunner:
                 'optimal_cost': r.optimal_cost,
                 'nodes_expanded': r.nodes_expanded,
                 'time_seconds': r.time_seconds,
+                'success': r.success,
                 'optimality_maintained': r.optimality_maintained,
                 'relative_error': r.relative_error
             })
@@ -271,7 +274,8 @@ class ExperimentRunner:
                 'avg_nodes': algo_df['nodes_expanded'].mean(),
                 'avg_time': algo_df['time_seconds'].mean(),
                 'avg_cost': algo_df['cost'].mean(),
-                'success_rate': algo_df['optimality_maintained'].mean(),
+                'success_rate': algo_df['success'].mean(),
+                'optimality_rate': algo_df['optimality_maintained'].mean(),
                 'n_instances': len(algo_df)
             }
 
@@ -298,7 +302,8 @@ class ExperimentRunner:
                 'optimal_cost': json_float(r.optimal_cost),
                 'nodes_expanded': r.nodes_expanded,
                 'time_seconds': json_float(r.time_seconds),
-                'optimality_maintained': r.optimality_maintained,
+                'success': bool(r.success),
+                'optimality_maintained': bool(r.optimality_maintained),
                 'relative_error': json_float(r.relative_error)
             })
 
@@ -320,13 +325,14 @@ class ExperimentRunner:
             for key in ('cost', 'optimal_cost', 'time_seconds', 'relative_error'):
                 if item[key] is None:
                     item[key] = float('inf')
+            item.setdefault('success', bool(item.get('path')))
             self.results.append(ExperimentResult(**item))
 
 
-def run_standard_experiments(data_path: str = "tsp_instances_dataset.csv",
+def run_standard_experiments(data_path: str = "tsp_small_instances.csv",
                             output_file: str = "experiment_results.json"):
     """
-    Run standard experiment workflow.
+    Run the three required search strategies on comparable small instances.
     
     Args:
         data_path: Path to dataset CSV
@@ -338,32 +344,24 @@ def run_standard_experiments(data_path: str = "tsp_instances_dataset.csv",
 
     runner = ExperimentRunner(data_path=data_path)
     print("\n[1/4] Loading instances...")
-    instances = runner.load_instances(num_instances=100, max_n=25)
+    instances = runner.load_instances(num_instances=20, max_n=10)
     print(f"Loaded {len(instances)} instances")
 
-    print("\n[2/4] Splitting dataset...")
-    train_size = min(50, len(instances) // 2)
-    train_instances = instances[:train_size]
-    test_instances = instances[train_size:]
-    print(f"Train: {len(train_instances)}, Test: {len(test_instances)}")
+    print("\n[2/4] Running core search experiments...")
+    algorithms = ['bfs', 'ucs', 'astar']
+    runner.run_batch(algorithms=algorithms, instances=instances, verbose=True)
 
-    print("\n[3/4] Training ML models...")
-    runner.train_ml_models(train_instances)
-
-    print("\n[4/4] Running experiments...")
-    algorithms = ['astar', 'learning_astar_rf', 'learning_astar_mlp']
-    runner.run_batch(algorithms=algorithms, instances=test_instances, verbose=True)
-
-    print("\nSaving results...")
+    print("\n[3/4] Saving results...")
     runner.save_results(output_file)
 
-    print("\nResult Summary:")
+    print("\n[4/4] Result Summary:")
     summary = runner.summarize()
     for algo, stats in summary.items():
         print(f"\n{algo}:")
         print(f"  Avg Nodes: {stats['avg_nodes']:.1f}")
         print(f"  Avg Time: {stats['avg_time']:.4f}s")
         print(f"  Success Rate: {stats['success_rate']:.2%}")
+        print(f"  Optimality Rate: {stats['optimality_rate']:.2%}")
 
 
 if __name__ == "__main__":

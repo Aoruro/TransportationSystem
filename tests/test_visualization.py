@@ -22,6 +22,36 @@ class _Root:
         pass
 
 
+class _Var:
+    def __init__(self, value):
+        self.value = value
+
+    def get(self):
+        return self.value
+
+
+class _GridWidget:
+    def __init__(self):
+        self.visible = True
+
+    def grid(self):
+        self.visible = True
+
+    def grid_remove(self):
+        self.visible = False
+
+
+class _PackedWidget:
+    def __init__(self):
+        self.visible = True
+
+    def pack(self, **_kwargs):
+        self.visible = True
+
+    def pack_forget(self):
+        self.visible = False
+
+
 class _Axes:
     def clear(self):
         pass
@@ -38,20 +68,54 @@ class _Axes:
     def set_title(self, *_args, **_kwargs):
         pass
 
+    def set_facecolor(self, *_args, **_kwargs):
+        pass
+
+    def grid(self, *_args, **_kwargs):
+        pass
+
+    def tick_params(self, *_args, **_kwargs):
+        pass
+
 
 class _Canvas:
     def draw(self):
+        pass
+
+    def draw_idle(self):
         pass
 
 
 class TestVisualizerState(unittest.TestCase):
     """UI state tests that do not require a Tk window."""
 
+    def test_learning_astar_defaults_are_training_compatible(self):
+        """Test that Learning A* examples stay within the UI training limit."""
+        algo_info = TSPVisualizer.ALGORITHMS['Learning A*']
+        self.assertLessEqual(algo_info['max_n'], TSPVisualizer.MAX_UI_TRAINING_N)
+        self.assertEqual(algo_info['data_path'], 'tsp_small_instances.csv')
+
     def test_search_animation_batches_more_nodes_at_higher_speed(self):
         """Test that the speed slider reduces redraw frequency at high values."""
         self.assertEqual(TSPVisualizer._search_animation_settings(1), (1, 198))
         self.assertEqual(TSPVisualizer._search_animation_settings(50), (25, 100))
         self.assertEqual(TSPVisualizer._search_animation_settings(100), (100, 1))
+
+    def test_ml_controls_are_visible_only_for_learning_astar(self):
+        """Test that regular searches do not show irrelevant ML settings."""
+        visualizer = object.__new__(TSPVisualizer)
+        visualizer.selected_algorithm = _Var("A*")
+        visualizer.lambda_widgets = tuple(_GridWidget() for _ in range(3))
+        visualizer.train_model_button = _PackedWidget()
+
+        visualizer._update_learning_controls_visibility()
+        self.assertTrue(all(not widget.visible for widget in visualizer.lambda_widgets))
+        self.assertFalse(visualizer.train_model_button.visible)
+
+        visualizer.selected_algorithm.value = "Learning A*"
+        visualizer._update_learning_controls_visibility()
+        self.assertTrue(all(widget.visible for widget in visualizer.lambda_widgets))
+        self.assertTrue(visualizer.train_model_button.visible)
 
     def test_reset_resumes_future_searches(self):
         """Test that reset clears pause instead of toggling it."""

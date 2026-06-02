@@ -22,10 +22,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from typing import List, Dict, Optional, Tuple
-import sys
-import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.data_processor import TSPInstance
 from search.bfs import BFSSolver
 from search.ucs import UCSSolver
@@ -40,13 +37,42 @@ class TSPVisualizer:
     """
 
     ALGORITHMS = {
-        'BFS': {'class': BFSSolver, 'max_n': 10, 'color': '#3498db'},
-        'UCS': {'class': UCSSolver, 'max_n': 12, 'color': '#2ecc71'},
-        'A*': {'class': AStarSolver, 'max_n': 25, 'color': '#e74c3c'},
-        'Learning A*': {'class': None, 'max_n': 25, 'color': '#9b59b6'}
+        'BFS': {
+            'class': BFSSolver, 'max_n': 10, 'color': '#3498db',
+            'data_path': 'tsp_small_instances.csv'
+        },
+        'UCS': {
+            'class': UCSSolver, 'max_n': 12, 'color': '#2ecc71',
+            'data_path': 'tsp_small_instances.csv'
+        },
+        'A*': {
+            'class': AStarSolver, 'max_n': 25, 'color': '#e74c3c',
+            'data_path': 'tsp_instances_dataset.csv'
+        },
+        'Learning A*': {
+            'class': None, 'max_n': 15, 'color': '#9b59b6',
+            'data_path': 'tsp_small_instances.csv'
+        }
     }
     MAX_UI_TRAINING_N = 15
     MAX_DRAWN_SEARCH_NODES = 1000
+    APP_BG = '#eef3f8'
+    PANEL_BG = '#ffffff'
+    TEXT_COLOR = '#1f2937'
+    MUTED_TEXT_COLOR = '#64748b'
+    PRIMARY_COLOR = '#2563eb'
+    PRIMARY_HOVER_COLOR = '#1d4ed8'
+    PRIMARY_PRESSED_COLOR = '#1e40af'
+    BORDER_COLOR = '#d7e1ec'
+    CONTROL_BG = '#f8fafc'
+    CONTROL_HOVER_BG = '#eef4fb'
+    CONTROL_PRESSED_BG = '#e2e8f0'
+    ML_COLOR = '#7c3aed'
+    ML_HOVER_COLOR = '#6d28d9'
+    ML_PRESSED_COLOR = '#5b21b6'
+    PATH_COLOR = '#ef4444'
+    ANIMATION_PATH_COLOR = '#16a34a'
+    NODE_COLOR = '#3b82f6'
 
     def __init__(self, root: tk.Tk = None):
         """
@@ -58,6 +84,8 @@ class TSPVisualizer:
         self.root = root if root else tk.Tk()
         self.root.title("TSP Search Visualizer")
         self.root.geometry("1200x800")
+        self.root.minsize(980, 680)
+        self.root.configure(background=self.APP_BG)
         self.root.attributes('-topmost', True)  # Keep window on top
         self.root.update_idletasks()  # Update geometry
         
@@ -92,59 +120,237 @@ class TSPVisualizer:
         self.lambda_value.trace_add("write", self._update_lambda_display)
         self.speed_value = tk.IntVar(value=50)
 
+        self._configure_styles()
         self._create_widgets()
         self._create_menu()
         
         # Load default instances from CSV
         self._load_default_instances()
 
+    def _configure_styles(self):
+        """Configure a light visual theme without adding runtime overhead."""
+        self.style = ttk.Style(self.root)
+        if 'clam' in self.style.theme_names():
+            self.style.theme_use('clam')
+
+        self.style.configure('App.TFrame', background=self.APP_BG)
+        self.style.configure('Header.TFrame', background=self.APP_BG)
+        self.style.configure('Toolbar.TFrame', background=self.PANEL_BG)
+        self.style.configure(
+            'Card.TFrame', background=self.PANEL_BG, borderwidth=1,
+            relief='solid', bordercolor=self.BORDER_COLOR
+        )
+        self.style.configure(
+            'Title.TLabel', background=self.APP_BG, foreground=self.TEXT_COLOR,
+            font=('Segoe UI', 18, 'bold')
+        )
+        self.style.configure(
+            'Subtitle.TLabel', background=self.APP_BG,
+            foreground=self.MUTED_TEXT_COLOR, font=('Segoe UI', 10)
+        )
+        self.style.configure(
+            'Toolbar.TLabel', background=self.PANEL_BG,
+            foreground=self.TEXT_COLOR, font=('Segoe UI', 11, 'bold')
+        )
+        self.style.configure(
+            'Value.TLabel', background=self.PANEL_BG,
+            foreground=self.PRIMARY_COLOR, font=('Segoe UI', 11, 'bold')
+        )
+        self.style.configure(
+            'Toolbar.TButton', font=('Segoe UI', 10, 'bold'), padding=(12, 7),
+            foreground='#334155', background=self.CONTROL_BG,
+            bordercolor=self.BORDER_COLOR, lightcolor=self.BORDER_COLOR,
+            darkcolor=self.BORDER_COLOR, borderwidth=1, relief='solid',
+            focuscolor=self.BORDER_COLOR
+        )
+        self.style.map(
+            'Toolbar.TButton',
+            background=[
+                ('pressed', self.CONTROL_PRESSED_BG),
+                ('active', self.CONTROL_HOVER_BG)
+            ],
+            bordercolor=[
+                ('pressed', '#94a3b8'),
+                ('active', '#a8bbd0')
+            ],
+            foreground=[('disabled', '#94a3b8')]
+        )
+        self.style.configure(
+            'Accent.TButton', font=('Segoe UI', 10, 'bold'),
+            padding=(14, 7), foreground='#ffffff', background=self.PRIMARY_COLOR,
+            bordercolor=self.PRIMARY_COLOR, lightcolor=self.PRIMARY_COLOR,
+            darkcolor=self.PRIMARY_COLOR, borderwidth=1, relief='solid',
+            focuscolor=self.PRIMARY_COLOR
+        )
+        self.style.map(
+            'Accent.TButton',
+            background=[
+                ('pressed', self.PRIMARY_PRESSED_COLOR),
+                ('active', self.PRIMARY_HOVER_COLOR)
+            ],
+            bordercolor=[
+                ('pressed', self.PRIMARY_PRESSED_COLOR),
+                ('active', self.PRIMARY_HOVER_COLOR)
+            ]
+        )
+        self.style.configure(
+            'ML.TButton', font=('Segoe UI', 10, 'bold'), padding=(12, 7),
+            foreground='#ffffff', background=self.ML_COLOR,
+            bordercolor=self.ML_COLOR, lightcolor=self.ML_COLOR,
+            darkcolor=self.ML_COLOR, borderwidth=1, relief='solid',
+            focuscolor=self.ML_COLOR
+        )
+        self.style.map(
+            'ML.TButton',
+            background=[
+                ('pressed', self.ML_PRESSED_COLOR),
+                ('active', self.ML_HOVER_COLOR)
+            ],
+            bordercolor=[
+                ('pressed', self.ML_PRESSED_COLOR),
+                ('active', self.ML_HOVER_COLOR)
+            ]
+        )
+        self.style.configure(
+            'Status.TLabel', background='#e8f0fb',
+            foreground='#334155', font=('Segoe UI', 10), padding=(14, 8),
+            borderwidth=1, relief='solid', bordercolor='#cbdbea'
+        )
+        self.style.configure(
+            'TCombobox', font=('Segoe UI', 10), padding=5,
+            fieldbackground=self.CONTROL_BG, background=self.CONTROL_BG,
+            bordercolor=self.BORDER_COLOR, lightcolor=self.BORDER_COLOR,
+            darkcolor=self.BORDER_COLOR, arrowcolor=self.TEXT_COLOR
+        )
+        self.style.map(
+            'TCombobox',
+            fieldbackground=[('readonly', self.CONTROL_BG)],
+            selectbackground=[('readonly', self.CONTROL_BG)],
+            selectforeground=[('readonly', self.TEXT_COLOR)],
+            bordercolor=[('focus', self.PRIMARY_COLOR)]
+        )
+        self.style.configure(
+            'Horizontal.TScale', background=self.PANEL_BG,
+            troughcolor='#dbe5f0', bordercolor=self.BORDER_COLOR
+        )
+
     def _create_widgets(self):
         """Create UI widgets"""
-        control_frame = ttk.Frame(self.root, padding="10")
-        control_frame.pack(side=tk.TOP, fill=tk.X)
+        app_frame = ttk.Frame(self.root, style='App.TFrame')
+        app_frame.pack(fill=tk.BOTH, expand=True)
 
-        ttk.Label(control_frame, text="Algorithm:").grid(row=0, column=0, padx=5, pady=5)
-        algo_combo = ttk.Combobox(control_frame, textvariable=self.selected_algorithm,
-                                  values=list(self.ALGORITHMS.keys()), state='readonly')
-        algo_combo.grid(row=0, column=1, padx=5, pady=5)
+        header_frame = ttk.Frame(app_frame, style='Header.TFrame')
+        header_frame.pack(side=tk.TOP, fill=tk.X, padx=18, pady=(14, 8))
+        ttk.Label(
+            header_frame, text="TSP Search Visualizer", style='Title.TLabel'
+        ).pack(anchor=tk.W)
+        ttk.Label(
+            header_frame,
+            text="Explore routes with BFS, UCS, A*, and Learning A*",
+            style='Subtitle.TLabel'
+        ).pack(anchor=tk.W, pady=(2, 0))
+
+        control_frame = ttk.Frame(app_frame, style='Card.TFrame', padding=(16, 14))
+        control_frame.pack(side=tk.TOP, fill=tk.X, padx=18, pady=(0, 10))
+
+        settings_frame = ttk.Frame(control_frame, style='Toolbar.TFrame')
+        settings_frame.pack(side=tk.TOP, fill=tk.X)
+
+        ttk.Label(settings_frame, text="Algorithm", style='Toolbar.TLabel').grid(
+            row=0, column=0, padx=(0, 7), pady=4, sticky=tk.W
+        )
+        algo_combo = ttk.Combobox(settings_frame, textvariable=self.selected_algorithm,
+                                  values=list(self.ALGORITHMS.keys()), state='readonly',
+                                  width=12)
+        algo_combo.grid(row=0, column=1, padx=(0, 12), pady=4)
         algo_combo.bind('<<ComboboxSelected>>', self._on_algorithm_change)
 
-        ttk.Label(control_frame, text="Lambda:").grid(row=0, column=2, padx=5, pady=5)
-        lambda_scale = ttk.Scale(control_frame, from_=0.0, to=1.0,
-                                 variable=self.lambda_value, orient=tk.HORIZONTAL, length=100)
-        lambda_scale.grid(row=0, column=3, padx=5, pady=5)
-        ttk.Label(control_frame, textvariable=self.lambda_display).grid(row=0, column=4, padx=5, pady=5)
+        self.lambda_label = ttk.Label(
+            settings_frame, text="Lambda", style='Toolbar.TLabel'
+        )
+        self.lambda_label.grid(
+            row=0, column=2, padx=(0, 7), pady=4, sticky=tk.W
+        )
+        self.lambda_scale = ttk.Scale(
+            settings_frame, from_=0.0, to=1.0,
+            variable=self.lambda_value, orient=tk.HORIZONTAL, length=100
+        )
+        self.lambda_scale.grid(row=0, column=3, padx=(0, 6), pady=4)
+        self.lambda_value_label = ttk.Label(
+            settings_frame, textvariable=self.lambda_display,
+            style='Value.TLabel', width=4
+        )
+        self.lambda_value_label.grid(row=0, column=4, padx=(0, 12), pady=4)
+        self.lambda_widgets = (
+            self.lambda_label, self.lambda_scale, self.lambda_value_label
+        )
 
-        ttk.Label(control_frame, text="Speed:").grid(row=0, column=5, padx=5, pady=5)
-        speed_scale = ttk.Scale(control_frame, from_=1, to=100,
+        ttk.Label(settings_frame, text="Speed", style='Toolbar.TLabel').grid(
+            row=0, column=5, padx=(0, 7), pady=4, sticky=tk.W
+        )
+        speed_scale = ttk.Scale(settings_frame, from_=1, to=100,
                                 variable=self.speed_value, orient=tk.HORIZONTAL, length=100)
-        speed_scale.grid(row=0, column=6, padx=5, pady=5)
+        speed_scale.grid(row=0, column=6, padx=(0, 6), pady=4)
+        ttk.Label(
+            settings_frame, textvariable=self.speed_value,
+            style='Value.TLabel', width=3
+        ).grid(row=0, column=7, padx=(0, 12), pady=4)
 
-        ttk.Label(control_frame, text="Instance:").grid(row=0, column=8, padx=5, pady=5)
-        self.instance_combo = ttk.Combobox(control_frame, textvariable=self.selected_instance_name,
-                                           state='readonly')
-        self.instance_combo.grid(row=0, column=9, padx=5, pady=5)
+        ttk.Label(settings_frame, text="Instance", style='Toolbar.TLabel').grid(
+            row=0, column=8, padx=(0, 7), pady=4, sticky=tk.W
+        )
+        self.instance_combo = ttk.Combobox(
+            settings_frame, textvariable=self.selected_instance_name,
+            state='readonly', width=22
+        )
+        self.instance_combo.grid(row=0, column=9, pady=4, sticky=tk.EW)
         self.instance_combo.bind('<<ComboboxSelected>>', self._on_instance_select)
+        settings_frame.columnconfigure(9, weight=1)
 
-        btn_frame = ttk.Frame(control_frame)
-        btn_frame.grid(row=0, column=10, padx=10)
+        btn_frame = ttk.Frame(control_frame, style='Toolbar.TFrame')
+        btn_frame.pack(side=tk.TOP, fill=tk.X, pady=(9, 0))
 
-        ttk.Button(btn_frame, text="Load Instance", command=self._load_instance).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="Train ML Model", command=self._train_ml_model).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="Start Search", command=self._start_search).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="Pause", command=self._pause_search).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="Reset", command=self._reset).pack(side=tk.LEFT, padx=2)
-        ttk.Button(btn_frame, text="Show Path", command=self._show_final_path).pack(side=tk.LEFT, padx=2)
+        ttk.Button(
+            btn_frame, text="Start Search", command=self._start_search,
+            style='Accent.TButton'
+        ).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(
+            btn_frame, text="Pause / Resume", command=self._pause_search,
+            style='Toolbar.TButton'
+        ).pack(side=tk.LEFT, padx=3)
+        ttk.Button(
+            btn_frame, text="Show Path", command=self._show_final_path,
+            style='Toolbar.TButton'
+        ).pack(side=tk.LEFT, padx=3)
+        ttk.Button(
+            btn_frame, text="Reset", command=self._reset,
+            style='Toolbar.TButton'
+        ).pack(side=tk.LEFT, padx=3)
+        ttk.Button(
+            btn_frame, text="Load Instance", command=self._load_instance,
+            style='Toolbar.TButton'
+        ).pack(side=tk.RIGHT, padx=(6, 0))
+        self.train_model_button = ttk.Button(
+            btn_frame, text="Train ML Model", command=self._train_ml_model,
+            style='ML.TButton'
+        )
+        self.train_model_button.pack(side=tk.RIGHT, padx=3)
+        self._update_learning_controls_visibility()
 
-        self.canvas_frame = ttk.Frame(self.root)
-        self.canvas_frame.pack(fill=tk.BOTH, expand=True)
+        self.status_label = ttk.Label(
+            app_frame, text="Ready", style='Status.TLabel', anchor=tk.W
+        )
+        self.status_label.pack(side=tk.BOTTOM, fill=tk.X, padx=18, pady=(0, 12))
 
-        self.fig, self.ax = plt.subplots(1, 1, figsize=(10, 8))
+        self.canvas_frame = ttk.Frame(app_frame, style='Card.TFrame', padding=8)
+        self.canvas_frame.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 10))
+
+        self.fig, self.ax = plt.subplots(1, 1, figsize=(10, 8), facecolor=self.PANEL_BG)
+        self.fig.subplots_adjust(left=0.07, right=0.98, top=0.94, bottom=0.08)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.canvas_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
-        self.status_label = ttk.Label(self.root, text="Ready", padding="5")
-        self.status_label.pack(side=tk.BOTTOM, fill=tk.X)
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.configure(highlightthickness=0, background=self.PANEL_BG)
+        canvas_widget.pack(fill=tk.BOTH, expand=True)
 
     def _create_menu(self):
         """Create menu bar"""
@@ -165,6 +371,17 @@ class TSPVisualizer:
         """Keep the Lambda label compact while preserving its full value."""
         self.lambda_display.set(f"{self.lambda_value.get():.2f}")
 
+    def _update_learning_controls_visibility(self):
+        """Show ML-specific controls only when Learning A* is selected."""
+        if self.selected_algorithm.get() == 'Learning A*':
+            for widget in self.lambda_widgets:
+                widget.grid()
+            self.train_model_button.pack(side=tk.RIGHT, padx=3)
+        else:
+            for widget in self.lambda_widgets:
+                widget.grid_remove()
+            self.train_model_button.pack_forget()
+
     def _load_default_instances(self):
         """Load default TSP instances from CSV file based on selected algorithm"""
         algo_name = self.selected_algorithm.get()
@@ -174,12 +391,9 @@ class TSPVisualizer:
         """Load appropriate dataset based on algorithm's city limit"""
         from data.data_processor import load_tsp_instances
         
-        max_n = self.ALGORITHMS[algo_name]['max_n']
-        
-        if max_n <= 12:
-            data_path = "tsp_small_instances.csv"
-        else:
-            data_path = "tsp_instances_dataset.csv"
+        algo_info = self.ALGORITHMS[algo_name]
+        max_n = algo_info['max_n']
+        data_path = algo_info['data_path']
         
         try:
             self.loaded_instances = load_tsp_instances(num_instances=100, data_path=data_path)
@@ -213,6 +427,7 @@ class TSPVisualizer:
     def _on_algorithm_change(self, event):
         """Handle algorithm selection change"""
         algo_name = self.selected_algorithm.get()
+        self._update_learning_controls_visibility()
         self._load_instances_for_algorithm(algo_name)
 
     def _on_instance_select(self, event):
@@ -255,7 +470,10 @@ class TSPVisualizer:
 
         coords = self.current_instance.coords
 
-        self.ax.scatter(coords[:, 0], coords[:, 1], c='blue', s=100, zorder=5)
+        self.ax.scatter(
+            coords[:, 0], coords[:, 1], c=self.NODE_COLOR, s=110,
+            edgecolors='#ffffff', linewidths=1.2, zorder=5
+        )
 
         for i, (x, y) in enumerate(coords):
             self.ax.annotate(str(i), (x, y), textcoords="offset points",
@@ -264,12 +482,25 @@ class TSPVisualizer:
         if self.current_path and len(self.current_path) > 1:
             if self._path_matches_instance(self.current_path, len(coords)):
                 path_coords = coords[self.current_path]
-                self.ax.plot(path_coords[:, 0], path_coords[:, 1], 'r-', linewidth=2, zorder=3)
+                self.ax.plot(
+                    path_coords[:, 0], path_coords[:, 1],
+                    color=self.PATH_COLOR, linewidth=2.4, zorder=3
+                )
             else:
                 self.current_path = None
 
-        self.ax.set_title(f"TSP Instance: {self.current_instance.name}")
-        self.canvas.draw()
+        self._style_axes(f"TSP Instance: {self.current_instance.name}")
+        self.canvas.draw_idle()
+
+    def _style_axes(self, title: str):
+        """Apply consistent plot styling after axes are cleared."""
+        self.ax.set_facecolor('#f8fafc')
+        self.ax.set_title(
+            title, fontsize=14, fontweight='semibold',
+            color=self.TEXT_COLOR, pad=12
+        )
+        self.ax.grid(True, color='#dbe4ee', linewidth=0.8, alpha=0.8)
+        self.ax.tick_params(colors=self.MUTED_TEXT_COLOR, labelsize=9)
 
     @staticmethod
     def _search_animation_settings(speed: int) -> Tuple[int, int]:
@@ -315,7 +546,10 @@ class TSPVisualizer:
         def _render_search_progress():
             """Draw one animation frame after a batch of expansions."""
             self.ax.clear()
-            self.ax.scatter(coords[:, 0], coords[:, 1], c='blue', s=100, zorder=5)
+            self.ax.scatter(
+                coords[:, 0], coords[:, 1], c=self.NODE_COLOR, s=110,
+                edgecolors='#ffffff', linewidths=1.2, zorder=5
+            )
 
             for i, (x, y) in enumerate(coords):
                 self.ax.annotate(str(i), (x, y), textcoords="offset points",
@@ -337,7 +571,7 @@ class TSPVisualizer:
                         self.ax.plot([x1, x2], [y1, y2], '-',
                                    color=colors[idx], alpha=0.6, linewidth=1.5)
 
-            self.ax.set_title(f"{algo_name} - Nodes: {self.displayed_nodes}")
+            self._style_axes(f"{algo_name} Search - Expanded Nodes: {self.displayed_nodes}")
             self.canvas.draw_idle()
 
         def _step_search(solver, search_gen, algo_name):
@@ -533,7 +767,10 @@ class TSPVisualizer:
             return
 
         self.ax.clear()
-        self.ax.scatter(coords[:, 0], coords[:, 1], c='blue', s=100, zorder=5)
+        self.ax.scatter(
+            coords[:, 0], coords[:, 1], c=self.NODE_COLOR, s=110,
+            edgecolors='#ffffff', linewidths=1.2, zorder=5
+        )
 
         for i, (x, y) in enumerate(coords):
             self.ax.annotate(str(i), (x, y), textcoords="offset points",
@@ -541,9 +778,13 @@ class TSPVisualizer:
 
         path_coords = coords[path[:self.displayed_nodes + 1]]
         if len(path_coords) > 0:
-            self.ax.plot(path_coords[:, 0], path_coords[:, 1], 'g-', linewidth=2, zorder=3)
+            self.ax.plot(
+                path_coords[:, 0], path_coords[:, 1],
+                color=self.ANIMATION_PATH_COLOR, linewidth=2.6, zorder=3
+            )
 
-        self.canvas.draw()
+        self._style_axes(f"Route Animation: {self.current_instance.name}")
+        self.canvas.draw_idle()
 
         if self.displayed_nodes < len(path) - 1:
             self.displayed_nodes += 1

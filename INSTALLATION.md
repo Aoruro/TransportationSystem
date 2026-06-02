@@ -51,3 +51,19 @@ python -X utf8 quick_test.py
 python -X utf8 full_test.py
 python -m unittest discover -s tests -v
 ```
+
+## Generate Report Artifacts
+
+Core BFS, UCS, and A* comparison:
+
+```bash
+python run_experiments.py
+```
+
+Include the optional Learning A* comparison:
+
+```bash
+python run_experiments.py --include-ml
+```
+
+Generated CSV, JSON, text reports, and PNG figures are written to `results/`.

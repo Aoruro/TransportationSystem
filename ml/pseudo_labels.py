@@ -12,12 +12,9 @@ References:
 """
 
 import numpy as np
-from typing import List, Tuple, Dict
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from typing import List, Tuple
 
-from search.utils import held_karp, TSPState
+from search.utils import held_karp, prim_mst
 from search.astar import AStarSolver
 from data.data_processor import TSPInstance
 
@@ -153,15 +150,11 @@ class PseudoLabelGenerator:
 
         if len(unvisited) > 1:
             sub_matrix = np.array([[self.dist_matrix[u][v] for v in unvisited] for u in unvisited])
-            mst_cost = self._prim_mst(sub_matrix)
+            mst_cost = prim_mst(len(unvisited), sub_matrix)
         else:
             mst_cost = 0.0
 
         mst_ratio = mst_cost / cost_so_far if cost_so_far > 0 else 0.0
-
-        edge_cost = self.dist_matrix[current][next_city]
-        estimated_remaining = edge_cost + mst_cost
-        f_value = cost_so_far + estimated_remaining
 
         features = [
             visited_ratio,
@@ -177,37 +170,6 @@ class PseudoLabelGenerator:
         ]
 
         return np.array(features, dtype=np.float32)
-
-    def _prim_mst(self, matrix: np.ndarray) -> float:
-        """Prim's MST algorithm for subset of cities."""
-        n = len(matrix)
-        if n <= 1:
-            return 0.0
-
-        key = [float('inf')] * n
-        in_mst = [False] * n
-        key[0] = 0.0
-        total = 0.0
-
-        for _ in range(n):
-            u = -1
-            m = float('inf')
-            for i in range(n):
-                if not in_mst[i] and key[i] < m:
-                    m = key[i]
-                    u = i
-
-            if u == -1:
-                break
-
-            in_mst[u] = True
-            total += m
-
-            for v in range(n):
-                if not in_mst[v] and matrix[u][v] < key[v]:
-                    key[v] = matrix[u][v]
-
-        return total
 
     def generate_negative_samples(self, path: List[int], g_cost: float,
                                   n_negatives: int = 2) -> List[Tuple[np.ndarray, int]]:

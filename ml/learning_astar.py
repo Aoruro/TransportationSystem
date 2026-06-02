@@ -16,12 +16,8 @@ import numpy as np
 from typing import List, Dict, Optional, Callable, Tuple
 import heapq
 import time
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from search.utils import TSPState, prim_mst, validate_distance_matrix
-from search.astar import AStarSolver
 from .model import TSPMLModel, ModelCache, FeatureExtractor
 
 

@@ -15,6 +15,7 @@ import os
 import tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from scripts.build_small_dataset import build_small_dataset
 from data.data_processor import (
     TSPInstance, DataProcessor, DataValidator,
     compute_distance_matrix
@@ -172,6 +173,35 @@ class TestDataProcessor(unittest.TestCase):
         train, val, test = processor.split_dataset()
 
         self.assertEqual((len(train), len(val), len(test)), (6, 2, 2))
+
+
+class TestSmallDatasetBuilder(unittest.TestCase):
+    """Reproducible small-instance dataset generation."""
+
+    def test_builds_prefix_city_subset(self):
+        """Test that the derived dataset keeps a deterministic city prefix."""
+        import pandas as pd
+
+        source = pd.DataFrame([{
+            "TSP_Instance": "route",
+            "Num_Cities": 4,
+            "City_1_X": 0, "City_1_Y": 0,
+            "City_2_X": 1, "City_2_Y": 0,
+            "City_3_X": 1, "City_3_Y": 1,
+            "City_4_X": 0, "City_4_Y": 1,
+        }])
+        with tempfile.TemporaryDirectory() as directory:
+            source_path = os.path.join(directory, "source.csv")
+            output_path = os.path.join(directory, "small.csv")
+            source.to_csv(source_path, index=False)
+
+            count = build_small_dataset(source_path, output_path, city_count=3)
+            result = pd.read_csv(output_path)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(result.loc[0, "TSP_Instance"], "route_small")
+        self.assertEqual(result.loc[0, "Num_Cities"], 3)
+        self.assertNotIn("City_4_X", result.columns)
 
 
 if __name__ == '__main__':

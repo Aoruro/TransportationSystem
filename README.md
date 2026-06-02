@@ -1,284 +1,176 @@
 # TSP Search Algorithms and Machine Learning Project
 
-## Project Overview
+## Overview
 
-This project implements a comprehensive Traveling Salesman Problem (TSP) solving system, integrating multiple classic search algorithms, machine learning-enhanced algorithms, and constraint satisfaction problem solvers.
+This project models transportation routing as a Traveling Salesman Problem
+(TSP). It compares three required search strategies and adds optional AI
+extensions:
+
+- Breadth-first search (BFS)
+- Uniform-cost search (UCS)
+- A* with an MST lower-bound heuristic
+- Learning-enhanced A* with Random Forest or MLP guidance
+- TSP with time windows (TSPTW) as a constraint satisfaction problem
+- An interactive Tkinter and Matplotlib desktop UI
+- Automated experiments, plots, paired t-tests, and regression tests
 
 ## Project Structure
 
-```
+```text
 TransportationSystem/
-├── data/                       # Data processing module
-│   ├── __init__.py
-│   └── data_processor.py      # TSP dataset loading, cleaning, splitting
-├── search/                     # Search algorithms module
-│   ├── __init__.py
-│   ├── bfs.py                 # BFS breadth-first search
-│   ├── ucs.py                 # UCS uniform cost search
-│   ├── astar.py               # A* algorithm
-│   └── utils.py               # Utility functions
-├── ml/                         # Machine learning module
-│   ├── __init__.py
-│   ├── model.py               # ML models, feature extraction
-│   ├── pseudo_labels.py       # Pseudo-label generation
-│   └── learning_astar.py      # Learning-enhanced A*
-├── csp/                        # CSP solving module
-│   ├── __init__.py
-│   └── tsptw_solver.py        # TSPTW time window solver
-├── visualization/              # Visualization module
-│   ├── __init__.py
-│   └── ui.py                  # Interactive UI
-├── experiments/                # Experiments module
-│   ├── __init__.py
-│   ├── runner.py              # Experiment runner
-│   └── statistics.py          # Statistical analysis
-├── tests/                      # Unit tests
-│   ├── __init__.py
-│   ├── test_data.py
-│   ├── test_search.py
-│   ├── test_ml.py
-│   └── test_csp.py
-├── tsp_instances_dataset.csv   # TSP dataset
-└── README.md                   # This document
+|-- data/                    # CSV loading, validation, distance matrices
+|-- search/                  # BFS, UCS, A*, Held-Karp, MST utilities
+|-- ml/                      # Features, models, pseudo-labels, Learning A*
+|-- csp/                     # TSPTW constraint satisfaction solver
+|-- experiments/             # Batch experiments and statistical analysis
+|-- visualization/           # Interactive and static visualizations
+|-- scripts/                 # Reproducible dataset preparation
+|-- tests/                   # Unit and regression tests
+|-- run_ui.py                # Desktop UI entry point
+|-- run_experiments.py       # Report artifact generator
+|-- DATASET.md               # Dataset structure and provenance notes
+|-- REFERENCES.md            # Algorithm, library, and reuse notes
+`-- requirements.txt
 ```
 
-## Environment Setup
+## Installation
 
-### Dependencies
-
-```
-numpy>=1.20.0
-pandas>=1.3.0
-scikit-learn>=1.0.0
-scipy>=1.7.0
-matplotlib>=3.4.0
-```
-
-### Installation
-
-```bash
-pip install numpy pandas scikit-learn scipy matplotlib
-```
-
-On Windows systems with multiple Python versions installed, Python 3.12 is
-recommended:
+Python 3.12 is recommended:
 
 ```powershell
 py -3.12 -m pip install -r requirements.txt
-py -3.12 -X utf8 quick_test.py
 ```
+
+See `INSTALLATION.md` for platform notes.
 
 ## Quick Start
 
-### 1. Load and Preprocess Data
+Run smoke checks:
 
-```python
-from data import load_tsp_instances
-
-instances = load_tsp_instances(num_instances=100)
-print(f"Loaded {len(instances)} instances")
+```powershell
+py -3.12 quick_test.py
+py -3.12 full_test.py
 ```
 
-### 2. Run Search Algorithms
+Run the UI:
 
-```python
-from search import AStarSolver
-
-solver = AStarSolver(distance_matrix)
-result = solver.solve()
-print(f"Path: {result['path']}")
-print(f"Cost: {result['cost']}")
-print(f"Nodes expanded: {result['nodes_expanded']}")
+```powershell
+py -3.12 run_ui.py
 ```
 
-### 3. Machine Learning Training
+Run the complete test suite:
 
-```python
-from ml import TSPMLModel
-from ml.pseudo_labels import generate_pseudo_labels_batch
-
-X, y = generate_pseudo_labels_batch(instances)
-model = TSPMLModel(model_type='rf')
-metrics = model.train(X, y)
-print(f"Accuracy: {metrics['accuracy']}")
+```powershell
+py -3.12 -m unittest discover -s tests -v
 ```
 
-### 4. Learning-enhanced A*
+## Core Search Comparison
 
-```python
-from ml.learning_astar import LearningAStar
+Generate report-ready core search tables and figures:
 
-solver = LearningAStar(dist_matrix, model=ml_model, lambda_param=0.5)
-result = solver.solve()
+```powershell
+py -3.12 run_experiments.py
 ```
 
-### 5. TSPTW Solving
+This compares BFS, UCS, and A* on identical 10-city instances and writes
+artifacts under `results/`.
 
-```python
-from csp import TSPTWInstance, TSPTWSolver
+Include the slower ML comparison when needed:
 
-instance = TSPTWInstance(coords, time_windows)
-solver = TSPTWSolver(instance)
-result = solver.solve()
+```powershell
+py -3.12 run_experiments.py --include-ml
 ```
 
-### 6. Run Experiments
+Learning A* is an above-and-beyond experiment. It is not assumed to outperform
+standard A*: model prediction overhead and training quality must be measured and
+discussed honestly.
 
-```python
-from experiments import ExperimentRunner
+## Dataset
 
-runner = ExperimentRunner(data_path="tsp_instances_dataset.csv")
-runner.load_instances(num_instances=100)
-runner.train_ml_models(train_instances)
-runner.run_batch(algorithms=['astar', 'learning_astar_rf'])
+The repository contains:
+
+- `tsp_instances_dataset.csv`: 113 source rows with 20-149 cities.
+- `tsp_small_instances.csv`: 113 deterministic 10-city derivatives for fair
+  BFS, UCS, A*, and interactive Learning A* comparisons.
+
+Rebuild the small dataset:
+
+```powershell
+py -3.12 scripts/build_small_dataset.py
 ```
 
-### 7. Run Visualization
+See `DATASET.md` for fields, filtering, derivation details, and the provenance
+record that must be completed before submission.
 
-```python
-from visualization import TSPVisualizer
+## Algorithm Limits
 
-app = TSPVisualizer()
-app.run()
-```
+Scale guards prevent accidental exponential blow-ups:
 
-### 8. Run Unit Tests
+| Algorithm | Limit | Notes |
+| --- | ---: | --- |
+| BFS | `N <= 10` | Weighted BFS with per-state dominance |
+| UCS | `N <= 12` | Includes the closing edge in goal priority |
+| A* | `N <= 25` | MST lower-bound heuristic |
+| Held-Karp | `N <= 15` | Exact dynamic-programming baseline |
+| UI Learning A* training | `N <= 15` | Keeps interactive training responsive |
+| TSPTW CSP | `N <= 10` | Backtracking, forward checking, and MRV |
 
-```bash
-python -m pytest tests/ -v
-```
+## Machine Learning Extension
 
-Or:
+The ML extension uses pseudo-labels from exact or near-optimal routes and ten
+features:
 
-```bash
-python -m unittest discover -s tests -v
-```
+1. Visited ratio
+2. Mean distance from the current city
+3. Minimum non-self distance from the current city
+4. Minimum candidate distance
+5. Mean candidate distance
+6. Unvisited ratio
+7. Maximum candidate distance
+8. MST lower-bound ratio
+9. Normalized current city index
+10. Normalized candidate next-city index
 
-For an end-to-end smoke test:
+Models:
 
-```bash
-python -X utf8 full_test.py
-```
-
-## Module Details
-
-### data/ - Data Processing
-
-- **TSPInstance**: TSP problem instance class
-- **DataProcessor**: Data loading and preprocessing
-- **DataValidator**: Data validation and anomaly detection
-- **load_tsp_instances()**: Convenience loading function
-
-Features:
-- Kaggle TSP dataset loading
-- Outlier detection and filtering
-- Coordinate normalization (zero-mean, unit variance)
-- Euclidean distance matrix computation
-- Dataset splitting (300 train, 100 validation, 100 test)
-
-### search/ - Search Algorithms
-
-**Algorithm Constraints**:
-- BFS: N ≤ 10
-- UCS: N ≤ 12
-- A*: N ≤ 25
-
-**Core Classes**:
-- `BFSSolver`: Breadth-First Search
-- `UCSSolver`: Uniform Cost Search
-- `AStarSolver`: A* algorithm with MST heuristic
-
-**Utility Functions**:
-- `TSPState`: State representation (visited_mask, current_city)
-- `held_karp()`: Dynamic programming optimal solution (N ≤ 15)
-- `verify_solution()`: Solution correctness verification
-- `prim_mst()`: Minimum Spanning Tree
-
-### ml/ - Machine Learning
-
-**Feature Engineering (10 features)**:
-1. visited_ratio: Ratio of visited cities
-2. mean_dist_from_current: Mean distance from current city to all cities
-3. min_dist_from_current: Minimum distance from current city
-4. min_candidate_dist: Minimum distance to unvisited cities
-5. mean_candidate_dist: Mean distance to unvisited cities
-6. unvisited_ratio: Ratio of unvisited cities
-7. max_dist_to_unvisited: Maximum distance to unvisited cities
-8. mst_lower_bound_ratio: MST lower bound / current cost
-9. current_city_normalized: Current city index (normalized)
-10. next_city_normalized: Candidate next city (normalized)
-
-**Models**:
 - Random Forest
-- 2-layer MLP neural network
+- Two-layer MLP
 
-**Learning A***:
-- Formula: `f' = f - lambda * prob`
-- Supports lambda parameter tuning
-- Caches predictions to reduce overhead
+Learning A* applies:
 
-### csp/ - Constraint Satisfaction Solving
+```text
+adjusted heuristic = base heuristic - lambda * predicted probability
+```
 
-**TSPTW Problem**:
-- Each city has a time window [earliest, latest]
-- Constraint satisfaction solving
+Completed states retain the exact return cost so ML guidance cannot make a tour
+appear cheaper after completion.
 
-**Solution Methods**:
-- Backtracking search
-- Forward checking
-- MRV (Minimum Remaining Values) heuristic
+## UI Features
 
-**Limitations**: N ≤ 10
+- Select BFS, UCS, A*, or Learning A*
+- Select algorithm-compatible examples
+- Load custom CSV instances
+- Train a Random Forest model for Learning A*
+- Adjust Lambda and animation speed
+- Visualize batched search expansion without freezing the UI
+- Draw the first 1000 search nodes and animate the final route
 
-### visualization/ - Visualization
+## Experiment Metrics
 
-**Features**:
-- Load custom TSP instances
-- Select algorithm (BFS/UCS/A*/Learning A*)
-- Real-time search tree expansion display
-- Final path animation
-- Train an ML model from the loaded instance and adjust the Lambda parameter
+The experiment runner records:
 
-**Performance Optimization**:
-- Limit display to first 10000 nodes
-- Hierarchical rendering to avoid lag
-
-### experiments/ - Experiments Module
-
-**Features**:
-- Automated execution of multiple algorithms
-- Result statistics and analysis
-- Significance testing (paired t-test, p < 0.05)
-- Performance comparison plots
-
-**Metrics**:
+- Path cost
+- Optimal baseline cost
 - Nodes expanded
 - Runtime
-- Path length
-- Optimality maintenance rate
+- Solver success rate
+- Optimality rate
 - Relative error
 
-### tests/ - Unit Tests
+The statistics module generates comparison plots and paired t-tests.
 
-Coverage:
-- Data preprocessing
-- Distance matrix computation
-- BFS, UCS, A* algorithms
-- MST heuristic
-- Machine learning models
-- CSP solver
+## References and Originality
 
-## Notes
-
-1. **Scale Constraints**: Strictly follow algorithm scale limits to prevent memory overflow
-2. **Optimality Guarantee**: A* uses a consistent MST heuristic. Learning A* keeps ML guidance admissible and requires a trained model.
-3. **Data Format**: TSP dataset must be CSV format with City_i_X, City_i_Y columns
-4. **Python Version**: Python 3.8-3.12 supported; Python 3.12 recommended
-
-## Originality Statement
-
-This code was developed with AI assistance according to course requirements. Core algorithm implementations reference classic textbooks:
-- "Artificial Intelligence: A Modern Approach"
-- "Introduction to Algorithms"
-
-All reused code is properly cited in comments.
+See `REFERENCES.md` for algorithm references, library use, original work, and
+the AI-assistance disclosure. Add the verified upstream dataset URL to
+`DATASET.md` before submission.

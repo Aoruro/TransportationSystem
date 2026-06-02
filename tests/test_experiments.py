@@ -31,6 +31,7 @@ class TestExperimentRunner(unittest.TestCase):
         )
 
         self.assertAlmostEqual(result.cost, result.optimal_cost)
+        self.assertTrue(result.success)
         self.assertTrue(result.optimality_maintained)
         self.assertEqual(result.relative_error, 0.0)
 
@@ -41,6 +42,7 @@ class TestExperimentRunner(unittest.TestCase):
 
         result = ExperimentRunner(instances=[instance]).run_single_experiment(instance, "bfs")
 
+        self.assertFalse(result.success)
         self.assertFalse(result.optimality_maintained)
         self.assertEqual(result.path, [])
         self.assertEqual(result.algorithm, "bfs")
@@ -51,6 +53,7 @@ class TestExperimentRunner(unittest.TestCase):
             self.instance, "learning_astar_rf"
         )
 
+        self.assertFalse(result.success)
         self.assertFalse(result.optimality_maintained)
         self.assertEqual(result.path, [])
 
@@ -68,6 +71,7 @@ class TestExperimentRunner(unittest.TestCase):
             time_seconds=0.0,
             optimality_maintained=False,
             relative_error=float('inf'),
+            success=False,
         )]
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as handle:
@@ -78,9 +82,56 @@ class TestExperimentRunner(unittest.TestCase):
                 data = json.load(handle)
             self.assertIsNone(data[0]['cost'])
             self.assertIsNone(data[0]['relative_error'])
+            self.assertFalse(data[0]['success'])
 
             runner.load_results(path)
             self.assertTrue(np.isinf(runner.results[0].cost))
+            self.assertFalse(runner.results[0].success)
+        finally:
+            os.unlink(path)
+
+    def test_summary_separates_success_and_optimality_rates(self):
+        """Test that finding a path is distinct from proving an optimal one."""
+        runner = ExperimentRunner(instances=[self.instance])
+        runner.results = [ExperimentResult(
+            algorithm="example",
+            instance_name="non_optimal",
+            n_cities=4,
+            path=[0, 1, 2, 3, 0],
+            cost=5.0,
+            optimal_cost=4.0,
+            nodes_expanded=1,
+            time_seconds=0.1,
+            optimality_maintained=False,
+            relative_error=0.25,
+            success=True,
+        )]
+
+        summary = runner.summarize()["example"]
+        self.assertEqual(summary["success_rate"], 1.0)
+        self.assertEqual(summary["optimality_rate"], 0.0)
+
+    def test_load_results_supports_legacy_json(self):
+        """Test compatibility with results saved before success was recorded."""
+        payload = [{
+            "algorithm": "astar",
+            "instance_name": "old",
+            "n_cities": 4,
+            "path": [0, 1, 2, 3, 0],
+            "cost": 4.0,
+            "optimal_cost": 4.0,
+            "nodes_expanded": 4,
+            "time_seconds": 0.1,
+            "optimality_maintained": True,
+            "relative_error": 0.0,
+        }]
+        with tempfile.NamedTemporaryFile(suffix=".json", mode="w", delete=False) as handle:
+            json.dump(payload, handle)
+            path = handle.name
+        try:
+            runner = ExperimentRunner()
+            runner.load_results(path)
+            self.assertTrue(runner.results[0].success)
         finally:
             os.unlink(path)
 
