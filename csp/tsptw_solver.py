@@ -12,6 +12,7 @@ References:
 - Constraint Satisfaction Problem techniques from "Artificial Intelligence: A Modern Approach"
 - MRV (Minimum Remaining Values) heuristic
 - Forward checking algorithm
+- Full bibliographic details and project reuse notes are in REFERENCES.md.
 """
 
 import numpy as np

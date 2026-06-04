@@ -7,9 +7,10 @@ Formula: f' = f - lambda * prob
 
 Guarantees heuristic admissibility.
 
-References:
-- Learning to Search Better Than Your Teacher (Rosin, 1996)
-- Learning Heuristics for State Space Search (Bellemare et al., 2016)
+Reference notes:
+- This module builds on the A* implementation in search.astar.
+- scikit-learn is used for the project-specific prediction model.
+- Full bibliographic details and project reuse notes are in REFERENCES.md.
 """
 
 import numpy as np

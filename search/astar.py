@@ -9,10 +9,10 @@ Features:
 - Heuristic: min_dist(current, unvisited) + mst(unvisited) + min_dist_to_start
 - Guaranteed optimal solution
 
-References:
-- A* algorithm from Artificial Intelligence: A Modern Approach
-- MST lower bound heuristic for TSP (Karp, 1972)
-- Prim's algorithm for MST computation
+Reference notes:
+- A* and admissible heuristic search are covered by Russell and Norvig.
+- The MST lower-bound term is implemented locally with Prim's algorithm.
+- Full bibliographic details and project reuse notes are in REFERENCES.md.
 """
 
 import heapq

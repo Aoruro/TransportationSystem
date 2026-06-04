@@ -1,4 +1,10 @@
-"""Uniform-cost search for weighted TSP instances."""
+"""
+Uniform-cost search for weighted TSP instances.
+
+Reference notes:
+- General UCS state-space search is covered by Russell and Norvig.
+- Full bibliographic details and project reuse notes are in REFERENCES.md.
+"""
 
 import heapq
 from itertools import count

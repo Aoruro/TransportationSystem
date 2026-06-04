@@ -9,10 +9,10 @@ Features:
 - Adjustable lambda parameter for Learning A*
 - Performance optimization: batch expansions and draw the first 1000 nodes
 
-References:
-- Tkinter for GUI framework
-- Matplotlib for plotting
-- Color schemes from matplotlib colormaps
+Reference notes:
+- Tkinter provides the desktop UI framework.
+- Matplotlib provides embedded plotting and colormaps.
+- Full library and project reuse notes are in REFERENCES.md.
 """
 
 import numpy as np

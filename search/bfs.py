@@ -1,4 +1,10 @@
-"""Breadth-first search for small weighted TSP instances."""
+"""
+Breadth-first search for small weighted TSP instances.
+
+Reference notes:
+- General BFS state-space search is covered by Russell and Norvig.
+- Full bibliographic details and project reuse notes are in REFERENCES.md.
+"""
 
 from collections import deque
 from typing import Callable, Dict, List, Optional, Tuple
