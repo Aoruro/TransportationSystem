@@ -452,10 +452,26 @@ class TSPVisualizer:
 
         try:
             from data.data_processor import load_tsp_instances
-            instances = load_tsp_instances(num_instances=1, data_path=filename)
+            instances = load_tsp_instances(data_path=filename)
             if instances:
-                self._set_current_instance(instances[0])
-                self.status_label.config(text=f"Loaded: {self.current_instance.name} ({self.current_instance.n} cities)")
+                self.loaded_instances = instances
+                self._filter_instances_by_algorithm()
+                if self.current_instance:
+                    self.status_label.config(
+                        text=(
+                            f"Loaded {len(self.filtered_instances)} instance(s) "
+                            f"from file; selected: {self.current_instance.name} "
+                            f"({self.current_instance.n} cities)"
+                        )
+                    )
+                else:
+                    algo_info = self.ALGORITHMS[self.selected_algorithm.get()]
+                    messagebox.showwarning(
+                        "Warning",
+                        f"No instances in this file match {self.selected_algorithm.get()} "
+                        f"(N <= {algo_info['max_n']})."
+                    )
+                    self.status_label.config(text="No compatible instances loaded")
             else:
                 messagebox.showerror("Error", "Failed to load instance")
         except Exception as e:
@@ -648,10 +664,20 @@ class TSPVisualizer:
             self._update_display()
             self.status_label.config(
                 text=f"{algo_name} completed: Cost={result['cost']:.2f}, "
-                     f"Nodes={result['nodes_expanded']}, Time={result['time']:.3f}s"
+                     f"Nodes={result['nodes_expanded']}, "
+                     f"Time={self._format_elapsed_time(result['time'])}"
             )
         else:
             messagebox.showinfo("Result", f"{algo_name} failed to find solution")
+
+    @staticmethod
+    def _format_elapsed_time(seconds: float) -> str:
+        """Format very short runtimes without rounding them down to 0."""
+        if seconds >= 1:
+            return f"{seconds:.3f}s"
+        if seconds >= 0.001:
+            return f"{seconds * 1000:.3f}ms"
+        return f"{seconds * 1_000_000:.1f}us"
 
     def _pause_search(self):
         """Toggle pause/resume search animation"""

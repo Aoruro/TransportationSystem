@@ -10,6 +10,7 @@ Test coverage:
 """
 
 import unittest
+from unittest.mock import patch
 import numpy as np
 import sys
 import os
@@ -261,6 +262,17 @@ class TestAStarSolver(unittest.TestCase):
         solver.prepare_for_iteration()
         list(solver.search_generator())
         self.assertAlmostEqual(solver.get_result()['cost'], 7.0)
+
+    def test_iteration_mode_reports_elapsed_time(self):
+        """Test that UI-style A* iteration reports real elapsed time."""
+        solver = AStarSolver(self.dist)
+
+        with patch("search.astar.time.time", side_effect=[10.0, 10.25]):
+            solver.prepare_for_iteration()
+            list(solver.search_generator())
+
+        self.assertTrue(solver.get_result()['success'])
+        self.assertEqual(solver.get_result()['time'], 0.25)
 
 
 class TestMST(unittest.TestCase):

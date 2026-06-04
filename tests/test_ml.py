@@ -9,6 +9,7 @@ Test coverage:
 """
 
 import unittest
+from unittest.mock import patch
 import numpy as np
 import sys
 import os
@@ -241,6 +242,15 @@ class TestLearningAStar(unittest.TestCase):
         result = solver.solve()
 
         self.assertAlmostEqual(result['cost'], optimal_cost)
+
+    def test_iteration_mode_reports_elapsed_time(self):
+        """Test that UI-style Learning A* iteration reports real elapsed time."""
+        with patch("ml.learning_astar.time.time", side_effect=[20.0, 20.5]):
+            self.solver.prepare_for_iteration()
+            list(self.solver.search_generator())
+
+        self.assertTrue(self.solver.get_result()['success'])
+        self.assertEqual(self.solver.get_result()['time'], 0.5)
 
 
 if __name__ == '__main__':

@@ -29,6 +29,18 @@ class _Var:
     def get(self):
         return self.value
 
+    def set(self, value):
+        self.value = value
+
+
+class _Combo:
+    def __init__(self):
+        self.values = []
+
+    def __setitem__(self, key, value):
+        if key == "values":
+            self.values = value
+
 
 class _GridWidget:
     def __init__(self):
@@ -100,6 +112,11 @@ class TestVisualizerState(unittest.TestCase):
         self.assertEqual(TSPVisualizer._search_animation_settings(1), (1, 198))
         self.assertEqual(TSPVisualizer._search_animation_settings(50), (25, 100))
         self.assertEqual(TSPVisualizer._search_animation_settings(100), (100, 1))
+
+    def test_short_elapsed_times_are_not_rounded_to_zero(self):
+        """Test that UI status text preserves sub-second timings."""
+        self.assertEqual(TSPVisualizer._format_elapsed_time(0.125), "125.000ms")
+        self.assertEqual(TSPVisualizer._format_elapsed_time(0.000125), "125.0us")
 
     def test_ml_controls_are_visible_only_for_learning_astar(self):
         """Test that regular searches do not show irrelevant ML settings."""
@@ -174,6 +191,32 @@ class TestVisualizerState(unittest.TestCase):
         self.assertIs(visualizer.current_instance, new_instance)
         self.assertIsNone(visualizer.ml_model)
         self.assertEqual(reset_calls, [True])
+
+    def test_load_instance_refreshes_the_instance_selector(self):
+        """Test that loading a CSV replaces the selectable instance list."""
+        visualizer = object.__new__(TSPVisualizer)
+        visualizer.selected_algorithm = _Var("A*")
+        visualizer.selected_instance_name = _Var("")
+        visualizer.instance_combo = _Combo()
+        visualizer.status_label = _Label()
+        visualizer.current_instance = None
+        visualizer.ml_model = None
+        visualizer._reset = lambda: None
+        visualizer._update_display = lambda: None
+        instances = [
+            TSPInstance("one", np.array([[0, 0], [1, 0], [0, 1]], dtype=float)),
+            TSPInstance("two", np.array([[0, 0], [2, 0], [0, 2]], dtype=float)),
+        ]
+
+        with patch("visualization.ui.filedialog.askopenfilename", return_value="custom.csv"):
+            with patch("data.data_processor.load_tsp_instances", return_value=instances):
+                visualizer._load_instance()
+
+        self.assertEqual(visualizer.loaded_instances, instances)
+        self.assertEqual(visualizer.filtered_instances, instances)
+        self.assertEqual(visualizer.instance_combo.values, ["one (3 cities)", "two (3 cities)"])
+        self.assertIs(visualizer.current_instance, instances[0])
+        self.assertEqual(visualizer.selected_instance_name.get(), "one (3 cities)")
 
     def test_ui_training_rejects_large_instance(self):
         """Test that synchronous training cannot freeze the UI on large input."""

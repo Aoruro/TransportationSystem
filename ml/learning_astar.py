@@ -298,6 +298,7 @@ class LearningAStar:
         self._search_g_dict = {}
         self._search_counter = 0
         self._search_result = None
+        self._search_start_time = time.time()
         
         start_mask = 1 << self.start
 
@@ -330,7 +331,7 @@ class LearningAStar:
                     'path': final_path,
                     'cost': final_cost,
                     'nodes_expanded': self._search_counter,
-                    'time': 0,
+                    'time': time.time() - self._search_start_time,
                     'success': True
                 }
                 node_info['is_complete'] = True
@@ -363,7 +364,7 @@ class LearningAStar:
             'path': [],
             'cost': float('inf'),
             'nodes_expanded': self._search_counter,
-            'time': 0,
+            'time': time.time() - self._search_start_time,
             'success': False
         }
 
