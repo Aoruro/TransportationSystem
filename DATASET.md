@@ -54,11 +54,11 @@ first 10 coordinate pairs, appends `_small` to the instance name, and writes
 
 ## Source Record
 
-- Source: Ziya, "Traveling Salesman Problem (TSPLIB Dataset)", Kaggle.
-- URL: https://www.kaggle.com/datasets/ziya07/traveling-salesman-problem-tsplib-dataset
+- IEEE reference: [1] Ziya, "Traveling Salesman Problem (TSPLIB Dataset),"
+  Kaggle, n.d. [Online]. Available:
+  https://www.kaggle.com/datasets/ziya07/traveling-salesman-problem-tsplib-dataset.
+  Accessed: Jun. 5, 2026.
 - License shown by Kaggle: CC0 Public Domain.
-- Source page verified: 2026-06-05.
-- Accessed for the report: 5 June 2026.
 - Reuse rationale: the dataset provides public coordinate-based TSP instances,
   which are more realistic than hand-made examples and suitable for comparing
   search algorithms on a shared routing problem.

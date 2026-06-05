@@ -1,73 +1,73 @@
 # References and Reuse Notes
 
 This file records the main external sources, libraries, and reused materials in
-the project. Module docstrings point here for full details so that code comments
-stay concise.
+the project. References use IEEE-style numbering. Module docstrings point here
+for full details so that code comments stay concise.
 
-## Dataset
+## References
 
-- Ziya. (n.d.). *Traveling Salesman Problem (TSPLIB Dataset)* [Dataset].
-  Kaggle. CC0 Public Domain license.
-  https://www.kaggle.com/datasets/ziya07/traveling-salesman-problem-tsplib-dataset
-  Accessed 5 June 2026.
+[1] Ziya, "Traveling Salesman Problem (TSPLIB Dataset)," Kaggle, n.d. [Online].
+Available: https://www.kaggle.com/datasets/ziya07/traveling-salesman-problem-tsplib-dataset.
+Accessed: Jun. 5, 2026.
 
-## Algorithm and Theory References
+[2] S. J. Russell and P. Norvig, *Artificial Intelligence: A Modern Approach*,
+4th ed. Boston, MA, USA: Pearson, 2021.
 
-- Russell, S. J., & Norvig, P. (2021). *Artificial Intelligence: A Modern
-  Approach* (4th ed.). Pearson. Used as the general AI reference for
-  state-space search, breadth-first search, uniform-cost search, A*, constraint
-  satisfaction, forward checking, and MRV.
-- Hart, P. E., Nilsson, N. J., & Raphael, B. (1968). A formal basis for the
-  heuristic determination of minimum cost paths. *IEEE Transactions on Systems
-  Science and Cybernetics, 4*(2), 100-107.
-  https://doi.org/10.1109/TSSC.1968.300136. Used as the original A* reference.
-- Held, M., & Karp, R. M. (1962). A dynamic programming approach to sequencing
-  problems. *Journal of the Society for Industrial and Applied Mathematics,
-  10*(1), 196-210. https://doi.org/10.1137/0110015. Used for the exact
-  small-instance TSP baseline.
-- Prim, R. C. (1957). Shortest connection networks and some generalizations.
-  *Bell System Technical Journal, 36*(6), 1389-1401. Used for the minimum
-  spanning tree term in the A* lower-bound heuristic.
+[3] P. E. Hart, N. J. Nilsson, and B. Raphael, "A formal basis for the
+heuristic determination of minimum cost paths," *IEEE Transactions on Systems
+Science and Cybernetics*, vol. 4, no. 2, pp. 100-107, 1968, doi:
+10.1109/TSSC.1968.300136.
 
-## Software Libraries
+[4] M. Held and R. M. Karp, "A dynamic programming approach to sequencing
+problems," *Journal of the Society for Industrial and Applied Mathematics*,
+vol. 10, no. 1, pp. 196-210, 1962, doi: 10.1137/0110015.
 
-- Harris, C. R., Millman, K. J., van der Walt, S. J., et al. (2020). Array
-  programming with NumPy. *Nature, 585*, 357-362.
-  https://doi.org/10.1038/s41586-020-2649-2.
-- pandas development team. (2026). *pandas documentation*.
-  https://pandas.pydata.org/docs/. Accessed 5 June 2026.
-- Pedregosa, F., Varoquaux, G., Gramfort, A., et al. (2011). Scikit-learn:
-  Machine learning in Python. *Journal of Machine Learning Research, 12*,
-  2825-2830.
-- Virtanen, P., Gommers, R., Oliphant, T. E., et al. (2020). SciPy 1.0:
-  Fundamental algorithms for scientific computing in Python. *Nature Methods,
-  17*, 261-272. https://doi.org/10.1038/s41592-019-0686-2.
-- Hunter, J. D. (2007). Matplotlib: A 2D graphics environment. *Computing in
-  Science & Engineering, 9*(3), 90-95.
-  https://doi.org/10.1109/MCSE.2007.55.
-- Python Software Foundation. (2026). *tkinter - Python interface to Tcl/Tk*.
-  https://docs.python.org/3/library/tkinter.html. Accessed 5 June 2026.
+[5] R. C. Prim, "Shortest connection networks and some generalizations," *Bell
+System Technical Journal*, vol. 36, no. 6, pp. 1389-1401, 1957.
+
+[6] C. R. Harris, K. J. Millman, S. J. van der Walt, *et al.*, "Array
+programming with NumPy," *Nature*, vol. 585, pp. 357-362, 2020, doi:
+10.1038/s41586-020-2649-2.
+
+[7] pandas development team, "pandas documentation," 2026. [Online].
+Available: https://pandas.pydata.org/docs/. Accessed: Jun. 5, 2026.
+
+[8] F. Pedregosa, G. Varoquaux, A. Gramfort, *et al.*, "Scikit-learn: Machine
+learning in Python," *Journal of Machine Learning Research*, vol. 12, pp.
+2825-2830, 2011.
+
+[9] P. Virtanen, R. Gommers, T. E. Oliphant, *et al.*, "SciPy 1.0:
+Fundamental algorithms for scientific computing in Python," *Nature Methods*,
+vol. 17, pp. 261-272, 2020, doi: 10.1038/s41592-019-0686-2.
+
+[10] J. D. Hunter, "Matplotlib: A 2D graphics environment," *Computing in
+Science & Engineering*, vol. 9, no. 3, pp. 90-95, 2007, doi:
+10.1109/MCSE.2007.55.
+
+[11] Python Software Foundation, "tkinter - Python interface to Tcl/Tk," 2026.
+[Online]. Available: https://docs.python.org/3/library/tkinter.html. Accessed:
+Jun. 5, 2026.
 
 ## Reuse Rationale
 
-- The Kaggle dataset was reused because it provides coordinate-based TSP
+- The Kaggle dataset [1] was reused because it provides coordinate-based TSP
   instances suitable for a transportation routing problem. Reusing a public
   dataset gives the experiments an external data source instead of hand-made
   examples. The project performs its own cleaning, validation, small-instance
   derivation, distance-matrix computation, filtering, and testing.
-- Standard AI algorithms and theory references were reused because BFS, UCS,
-  A*, CSP, and Held-Karp are established methods. The project does not copy an
-  external TSP solver; the state representation, scale guards, dominance
-  checks, visualization generators, MST heuristic cache, and experiment
-  integration are implemented locally.
-- Scientific Python libraries were reused for infrastructure: array
+- Standard AI algorithms and theory references [2]-[5] were reused because
+  BFS, UCS, A*, CSP, Held-Karp, and Prim's algorithm are established methods.
+  The project does not copy an external TSP solver; the state representation,
+  scale guards, dominance checks, visualization generators, MST heuristic
+  cache, and experiment integration are implemented locally.
+- Scientific Python libraries [6]-[10] were reused for infrastructure: array
   operations, CSV loading, statistical tests, machine-learning models, and
   plotting. These libraries support reproducibility and reliability while the
   project-specific routing logic remains in the repository code.
-- Tkinter and Matplotlib were reused to build the desktop visualizer because
-  they are standard Python-compatible UI and plotting tools. The interface
-  layout, dynamic controls, animation behavior, and algorithm integration are
-  project-specific.
+- Tkinter [11] and Matplotlib [10] were reused to build the desktop visualizer
+  because they are standard Python-compatible UI and plotting tools. The
+  interface layout, dynamic controls, animation behavior, and algorithm
+  integration are project-specific.
 
 ## Original Project Work
 
