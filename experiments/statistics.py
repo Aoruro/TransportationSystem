@@ -6,10 +6,9 @@ Features:
 - Performance comparison plots
 - Result visualization charts
 
-References:
-- Statistical hypothesis testing for algorithm comparison
-- Scipy stats module for t-tests
-- Matplotlib for visualization
+Reference notes:
+- SciPy is used for paired t-tests and Matplotlib is used for plots.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

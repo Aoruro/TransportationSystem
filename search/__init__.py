@@ -7,8 +7,9 @@ Contains search algorithms for TSP:
 - AStarSolver: A* algorithm with MST heuristic (N <= 25)
 - Utilities: TSPState, verification, optimality, complexity analysis
 
-References:
-- Algorithms from "Artificial Intelligence: A Modern Approach" (Russell & Norvig)
+Reference notes:
+- Search algorithm theory follows standard AI state-space search references.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 from .bfs import BFSSolver
 from .ucs import UCSSolver

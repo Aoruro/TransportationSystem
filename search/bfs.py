@@ -3,7 +3,7 @@ Breadth-first search for small weighted TSP instances.
 
 Reference notes:
 - General BFS state-space search is covered by Russell and Norvig.
-- Full bibliographic details and project reuse notes are in REFERENCES.md.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 from collections import deque

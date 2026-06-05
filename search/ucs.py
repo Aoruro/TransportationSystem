@@ -3,7 +3,7 @@ Uniform-cost search for weighted TSP instances.
 
 Reference notes:
 - General UCS state-space search is covered by Russell and Norvig.
-- Full bibliographic details and project reuse notes are in REFERENCES.md.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import heapq

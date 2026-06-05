@@ -9,9 +9,9 @@ Features:
 - Instance filtering (N <= 25)
 - Configurable train, validation, and test splitting
 
-References:
-- Euclidean distance calculation based on numpy.linalg.norm
-- Normalization technique from standard ML preprocessing practices
+Reference notes:
+- pandas and NumPy are used for CSV parsing and numeric preprocessing.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import pandas as pd

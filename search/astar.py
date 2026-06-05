@@ -12,7 +12,7 @@ Features:
 Reference notes:
 - A* and admissible heuristic search are covered by Russell and Norvig.
 - The MST lower-bound term is implemented locally with Prim's algorithm.
-- Full bibliographic details and project reuse notes are in REFERENCES.md.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import heapq

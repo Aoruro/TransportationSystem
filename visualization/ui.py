@@ -12,7 +12,7 @@ Features:
 Reference notes:
 - Tkinter provides the desktop UI framework.
 - Matplotlib provides embedded plotting and colormaps.
-- Full library and project reuse notes are in REFERENCES.md.
+- Full library details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

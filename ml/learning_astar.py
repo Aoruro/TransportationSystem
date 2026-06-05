@@ -10,7 +10,7 @@ Guarantees heuristic admissibility.
 Reference notes:
 - This module builds on the A* implementation in search.astar.
 - scikit-learn is used for the project-specific prediction model.
-- Full bibliographic details and project reuse notes are in REFERENCES.md.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

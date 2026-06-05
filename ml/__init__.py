@@ -7,9 +7,9 @@ Machine learning models and learning-enhanced A* algorithm:
 - PseudoLabelGenerator: Training data generation
 - LearningAStar: ML-enhanced A* search
 
-References:
-- Scikit-learn for ML implementations
-- Feature engineering based on TSP research
+Reference notes:
+- scikit-learn supports model training while routing features are local.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 from .model import TSPMLModel, FeatureExtractor
 from .pseudo_labels import PseudoLabelGenerator

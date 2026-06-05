@@ -8,9 +8,10 @@ Features:
 - Random Forest feature importance output
 - Prediction caching for performance optimization
 
-References:
-- Scikit-learn library for machine learning models
-- Feature engineering techniques from TSP research
+Reference notes:
+- scikit-learn is used for model training and evaluation utilities.
+- TSP-specific features are project-designed from the local state representation.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

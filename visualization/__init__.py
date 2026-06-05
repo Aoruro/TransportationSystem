@@ -5,9 +5,9 @@ Interactive UI and visualization components:
 - TSPVisualizer: Interactive GUI visualizer with Tkinter
 - SimpleVisualizer: Static matplotlib visualization for non-GUI environments
 
-References:
-- Tkinter for interactive GUI
-- Matplotlib for plotting
+Reference notes:
+- Tkinter and Matplotlib are reused for UI and plotting infrastructure.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 from .ui import TSPVisualizer, SimpleVisualizer
 

@@ -6,9 +6,9 @@ Features:
 - N = 16-20: Use standard A* to generate near-optimal solutions
 - Negative samples: Select 2-3 successors with highest f-values per state
 
-References:
-- Held-Karp algorithm from "An efficient algorithm for the traveling-salesman problem" (Held & Karp, 1962)
-- A* algorithm with MST heuristic
+Reference notes:
+- Held-Karp and A* are used to generate project-specific training labels.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

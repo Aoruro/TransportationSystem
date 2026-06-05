@@ -6,9 +6,9 @@ Features:
 - Result statistics: nodes expanded, runtime, path length, optimality rate, relative error
 - Batch processing of multiple instances
 
-References:
-- Experimental methodology for algorithm comparison
-- Pseudo-label generation from optimal/near-optimal paths
+Reference notes:
+- Experiment metrics compare locally implemented search algorithms.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

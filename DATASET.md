@@ -54,7 +54,14 @@ first 10 coordinate pairs, appends `_small` to the instance name, and writes
 
 ## Source Record
 
-The exact upstream download URL was not recorded in the repository. Before
-submission, add the verified dataset URL, author or organization, download date,
-and license here. Do not claim a Kaggle source in the report unless the team has
-verified the original page.
+- Source: Ziya, "Traveling Salesman Problem (TSPLIB Dataset)", Kaggle.
+- URL: https://www.kaggle.com/datasets/ziya07/traveling-salesman-problem-tsplib-dataset
+- License shown by Kaggle: CC0 Public Domain.
+- Source page verified: 2026-06-05.
+- Accessed for the report: 5 June 2026.
+- Reuse rationale: the dataset provides public coordinate-based TSP instances,
+  which are more realistic than hand-made examples and suitable for comparing
+  search algorithms on a shared routing problem.
+- Project-specific processing: CSV parsing, invalid-row rejection, coordinate
+  validation, Euclidean distance-matrix generation, `N <= 25` filtering, and
+  deterministic 10-city subset generation are implemented locally.

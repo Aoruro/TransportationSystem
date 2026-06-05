@@ -5,9 +5,9 @@ Automated experiment running, comparison, statistics, and plotting:
 - ExperimentRunner: Execute algorithms across instances
 - StatisticalAnalyzer: Perform t-tests and generate reports
 
-References:
-- Experimental methodology for algorithm comparison
-- Statistical hypothesis testing
+Reference notes:
+- Experiment comparison uses locally collected metrics and standard tests.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 from .runner import ExperimentRunner
 from .statistics import StatisticalAnalyzer

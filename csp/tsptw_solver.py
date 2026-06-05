@@ -8,11 +8,9 @@ Features:
 - CSP solving: Backtracking search + Forward checking + MRV heuristic
 - Outputs constraint-satisfying optimal path
 
-References:
-- Constraint Satisfaction Problem techniques from "Artificial Intelligence: A Modern Approach"
-- MRV (Minimum Remaining Values) heuristic
-- Forward checking algorithm
-- Full bibliographic details and project reuse notes are in REFERENCES.md.
+Reference notes:
+- CSP, MRV, and forward checking follow standard AI references.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import numpy as np

@@ -7,9 +7,9 @@ Contains:
 - Optimality verification
 - Complexity analysis
 
-References:
-- Held-Karp algorithm from "An efficient algorithm for the traveling-salesman problem" (Held & Karp, 1962)
-- Prim's MST algorithm from standard graph theory
+Reference notes:
+- Held-Karp and Prim's algorithm are implemented locally for TSP utilities.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 
 import math

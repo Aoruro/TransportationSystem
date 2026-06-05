@@ -6,8 +6,9 @@ TSPTW (Traveling Salesman Problem with Time Windows) CSP solving:
 - TSPTWSolver: TSPTW-specific solver
 - CSPSolver: Generic CSP solver with backtracking + forward checking + MRV
 
-References:
-- Constraint Satisfaction Problem techniques from Russell & Norvig
+Reference notes:
+- CSP, forward checking, and MRV follow standard AI references.
+- Full bibliographic details and reuse rationale are in REFERENCES.md.
 """
 from .tsptw_solver import TSPTWInstance, TSPTWSolver, CSPSolver
 
