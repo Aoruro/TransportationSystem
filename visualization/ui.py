@@ -119,6 +119,8 @@ class TSPVisualizer:
         self.lambda_display = tk.StringVar(value=f"{self.lambda_value.get():.2f}")
         self.lambda_value.trace_add("write", self._update_lambda_display)
         self.speed_value = tk.IntVar(value=50)
+        self.speed_display = tk.StringVar(value=self._format_speed_value(self.speed_value.get()))
+        self.speed_value.trace_add("write", self._update_speed_display)
 
         self._configure_styles()
         self._create_widgets()
@@ -288,24 +290,28 @@ class TSPVisualizer:
         ttk.Label(settings_frame, text="Speed", style='Toolbar.TLabel').grid(
             row=0, column=5, padx=(0, 7), pady=4, sticky=tk.W
         )
+        self.speed_value_label = ttk.Label(
+            settings_frame, textvariable=self.speed_display,
+            style='Value.TLabel', width=5, anchor=tk.CENTER
+        )
+        self.speed_value_label.grid(row=0, column=6, padx=(0, 8), pady=4, sticky=tk.EW)
         speed_scale = ttk.Scale(settings_frame, from_=1, to=100,
-                                variable=self.speed_value, orient=tk.HORIZONTAL, length=100)
-        speed_scale.grid(row=0, column=6, padx=(0, 6), pady=4)
-        ttk.Label(
-            settings_frame, textvariable=self.speed_value,
-            style='Value.TLabel', width=3
-        ).grid(row=0, column=7, padx=(0, 12), pady=4)
+                                variable=self.speed_value, orient=tk.HORIZONTAL, length=120)
+        speed_scale.grid(row=0, column=7, padx=(0, 12), pady=4)
 
         ttk.Label(settings_frame, text="Instance", style='Toolbar.TLabel').grid(
-            row=0, column=8, padx=(0, 7), pady=4, sticky=tk.W
+            row=1, column=0, padx=(0, 7), pady=(8, 4), sticky=tk.W
         )
         self.instance_combo = ttk.Combobox(
             settings_frame, textvariable=self.selected_instance_name,
             state='readonly', width=22
         )
-        self.instance_combo.grid(row=0, column=9, pady=4, sticky=tk.EW)
+        self.instance_combo.grid(
+            row=1, column=1, columnspan=8, pady=(8, 4), sticky=tk.EW
+        )
         self.instance_combo.bind('<<ComboboxSelected>>', self._on_instance_select)
-        settings_frame.columnconfigure(9, weight=1)
+        settings_frame.columnconfigure(6, minsize=56)
+        settings_frame.columnconfigure(8, weight=1)
 
         btn_frame = ttk.Frame(control_frame, style='Toolbar.TFrame')
         btn_frame.pack(side=tk.TOP, fill=tk.X, pady=(9, 0))
@@ -370,6 +376,15 @@ class TSPVisualizer:
     def _update_lambda_display(self, *_args):
         """Keep the Lambda label compact while preserving its full value."""
         self.lambda_display.set(f"{self.lambda_value.get():.2f}")
+
+    def _update_speed_display(self, *_args):
+        """Keep the Speed label visually stable for single-digit values."""
+        self.speed_display.set(self._format_speed_value(self.speed_value.get()))
+
+    @staticmethod
+    def _format_speed_value(speed: int) -> str:
+        """Format speed as at least two digits without changing its range."""
+        return f"{int(speed):02d}"
 
     def _update_learning_controls_visibility(self):
         """Show ML-specific controls only when Learning A* is selected."""
@@ -772,6 +787,10 @@ class TSPVisualizer:
             self.set_ml_model(model)
             self.status_label.config(
                 text=f"ML model trained: Samples={len(y)}, Accuracy={metrics['accuracy']:.3f}"
+            )
+            messagebox.showinfo(
+                "Training Complete",
+                "ML model trained successfully."
             )
         except Exception as exc:
             messagebox.showerror("Error", f"ML model training failed: {exc}")

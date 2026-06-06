@@ -118,6 +118,13 @@ class TestVisualizerState(unittest.TestCase):
         self.assertEqual(TSPVisualizer._format_elapsed_time(0.125), "125.000ms")
         self.assertEqual(TSPVisualizer._format_elapsed_time(0.000125), "125.0us")
 
+    def test_speed_display_uses_at_least_two_digits(self):
+        """Test that single-digit speeds do not shrink the label text."""
+        self.assertEqual(TSPVisualizer._format_speed_value(1), "01")
+        self.assertEqual(TSPVisualizer._format_speed_value(9), "09")
+        self.assertEqual(TSPVisualizer._format_speed_value(50), "50")
+        self.assertEqual(TSPVisualizer._format_speed_value(100), "100")
+
     def test_ml_controls_are_visible_only_for_learning_astar(self):
         """Test that regular searches do not show irrelevant ML settings."""
         visualizer = object.__new__(TSPVisualizer)
@@ -166,11 +173,16 @@ class TestVisualizerState(unittest.TestCase):
         reset_calls = []
         visualizer._reset = lambda: reset_calls.append(True)
 
-        visualizer._train_ml_model()
+        with patch("visualization.ui.messagebox.showinfo") as showinfo:
+            visualizer._train_ml_model()
 
         self.assertIsNotNone(visualizer.ml_model)
         self.assertEqual(reset_calls, [True])
         self.assertIn("ML model trained", visualizer.status_label.text)
+        showinfo.assert_called_once_with(
+            "Training Complete",
+            "ML model trained successfully."
+        )
 
     def test_switching_instance_discards_trained_model(self):
         """Test that a model trained for one instance is not silently reused."""
