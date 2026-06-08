@@ -16,7 +16,6 @@ def print_menu():
     print("3. Test Search Algorithms (BFS/UCS/A*)")
     print("4. Test Machine Learning Module")
     print("5. Test CSP Module (TSPTW)")
-    print("6. Run Unit Tests")
     print("0. Exit")
     print("=" * 60)
 
@@ -103,17 +102,6 @@ def run_ui():
     app.run()
 
 
-def run_unit_tests():
-    """Run the standard-library unittest suite."""
-    import subprocess
-
-    result = subprocess.run([
-        sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"
-    ])
-    if result.returncode != 0:
-        print("Unit tests failed.")
-
-
 def run_quick_test():
     """Run the quick smoke test."""
     from quick_test import main as quick_test_main
@@ -129,19 +117,18 @@ def main():
         '3': test_search,
         '4': test_ml,
         '5': test_csp,
-        '6': run_unit_tests,
     }
 
     while True:
         print_menu()
-        choice = input("Enter your choice (0-6): ")
+        choice = input("Enter your choice (0-5): ")
         if choice == '0':
             print("\nGoodbye!")
             return
 
         action = actions.get(choice)
         if action is None:
-            print("\nInvalid choice. Please enter 0-6.")
+            print("\nInvalid choice. Please enter 0-5.")
         else:
             try:
                 action()
